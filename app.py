@@ -55,12 +55,12 @@ def __build_payload(data):
                 'label': value.get('button'),
                 'payload': f'{path}.{key}'
             })
-        if keys[-1] != 'root':
-            buttons.append({
-                'type': 'textButton',
-                'label': 'Назад',
-                'payload': 'root'
-            })
+    if keys[-1] not in ('root', 'operator'):
+        buttons.append({
+            'type': 'textButton',
+            'label': 'Назад',
+            'payload': 'root'
+        })
     return keys[-1], {
         'text': node.get('text'),
         'buttons': buttons
