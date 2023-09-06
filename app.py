@@ -1,11 +1,14 @@
 import yaml
-from flask import Flask, request, jsonify
+from flask import Flask, request
 
-from livetex_client import send_text, route_to_operator
+import livetex_client
 
 app = Flask(__name__)
 
 BASE_URL = '/bot-api/webhook'
+
+if __name__ == '__main__':
+    app.run()
 
 
 @app.route(BASE_URL, methods=['POST'])
@@ -13,39 +16,38 @@ def get_reply():
     data = request.json
     channel_id = data.get('channelId')
     visitor_id = data.get('visitorId')
-    code, payload = __build_payload(data)
-    if data.get('type') in ('VisitorButtonPressed', 'VisitorTextSent'):
-        send_text(channel_id, visitor_id, payload)
-        if code == 'operator':
-            route_to_operator(channel_id, visitor_id)
-    return {
-        'status': 'success',
-        'visitor_id': visitor_id,
-        'channel_id': channel_id
-    }
+    keys = data.get('payload', 'root').split('.')
+    response = []
+    if data.get('type') in (
+            'VisitorButtonPressed',
+            'VisitorTextSent',
+            'VisitorFileSent',
+    ):
+        response.append(livetex_client.send_reply(channel_id, visitor_id, build_payload(keys)))
+        if keys[-1] == 'operator':
+            response.append(livetex_client.connect_to_operator(channel_id, visitor_id))
+    return response
 
 
 @app.route(BASE_URL, methods=['GET'])
 def get_settings():
-    return __build_payload({'payload': 'root'})[1]
+    return build_payload({'payload': 'root'})
 
 
-def __get_reply_tree():
+def get_reply_tree():
     with open('script.yml', 'r') as replies_file:
         return yaml.safe_load(replies_file)
 
 
-def __get_node(keys: list):
-    node: dict = __get_reply_tree()
+def get_node(keys: list):
+    node: dict = get_reply_tree()
     for key in keys:
         node = node.get('children', node).get(key, {})
     return node
 
 
-def __build_payload(data):
-    path = data.get('payload', 'root')
-    keys = path.split('.')
-    node = __get_node(keys)
+def build_payload(keys):
+    node = get_node(keys)
     buttons = []
     children = node.get('children')
     if children:
@@ -53,7 +55,7 @@ def __build_payload(data):
             buttons.append({
                 'type': 'textButton',
                 'label': value.get('button'),
-                'payload': f'{path}.{key}'
+                'payload': '.'.join(keys + [key])
             })
     if keys[-1] not in ('root', 'operator'):
         buttons.append({
@@ -61,11 +63,8 @@ def __build_payload(data):
             'label': 'Назад',
             'payload': 'root'
         })
-    return keys[-1], {
+    return {
         'text': node.get('text'),
-        'buttons': buttons
+        'buttons': buttons,
+        'path': keys
     }
-
-
-if __name__ == '__main__':
-    app.run()
