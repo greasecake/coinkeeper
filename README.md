@@ -115,4 +115,3 @@ Example of using a key in payload data: `"payload": "root.subscription_account.a
 ### Configuration
 
 Configure the `conversation_tree.yml` file according to your chatbot's requirements and the desired dialog structure.
-```
