@@ -6,48 +6,37 @@ import livetex_client
 app = Flask(__name__)
 
 BASE_URL = '/bot-api/webhook'
-
-if __name__ == '__main__':
-    app.run()
+CONVERSATION_TREE_FILE = 'conversation_tree.yml'
 
 
 @app.route(BASE_URL, methods=['POST'])
-def get_reply():
+def get_reply() -> list:
     data = request.json
-    channel_id = data.get('channelId')
-    visitor_id = data.get('visitorId')
-    keys = data.get('payload', 'root').split('.')
     response = []
-    if data.get('type') in (
-            'VisitorButtonPressed',
-            'VisitorTextSent',
-            'VisitorFileSent',
-    ):
-        response.append(livetex_client.send_reply(channel_id, visitor_id, build_payload(keys)))
-        if keys[-1] == 'operator':
-            response.append(livetex_client.connect_to_operator(channel_id, visitor_id))
+    if data.get('type') in ('VisitorButtonPressed', 'VisitorTextSent'):
+        channel_id = data.get('channelId')
+        visitor_id = data.get('visitorId')
+        path = data.get('payload', 'root').split('.')
+        response.append(livetex_client.send_reply(channel_id, visitor_id, build_payload(path)))
+        if path[-1] == 'operator':
+            response.append(livetex_client.transfer_to_operator(channel_id, visitor_id))
     return response
 
 
 @app.route(BASE_URL, methods=['GET'])
-def get_settings():
-    return build_payload({'payload': 'root'})
+def get_settings() -> dict:
+    return build_payload(['root'])
 
 
-def get_reply_tree():
-    with open('script.yml', 'r') as replies_file:
-        return yaml.safe_load(replies_file)
-
-
-def get_node(keys: list):
-    node: dict = get_reply_tree()
-    for key in keys:
+def get_node(path):
+    node = get_conversation_tree(CONVERSATION_TREE_FILE)
+    for key in path:
         node = node.get('children', node).get(key, {})
     return node
 
 
-def build_payload(keys):
-    node = get_node(keys)
+def build_payload(path):
+    node = get_node(path)
     buttons = []
     children = node.get('children')
     if children:
@@ -55,9 +44,9 @@ def build_payload(keys):
             buttons.append({
                 'type': 'textButton',
                 'label': value.get('button'),
-                'payload': '.'.join(keys + [key])
+                'payload': '.'.join(path + [key])
             })
-    if keys[-1] not in ('root', 'operator'):
+    if path[-1] not in ('root', 'operator'):
         buttons.append({
             'type': 'textButton',
             'label': 'Назад',
@@ -66,5 +55,14 @@ def build_payload(keys):
     return {
         'text': node.get('text'),
         'buttons': buttons,
-        'path': keys
+        'path': path
     }
+
+
+def get_conversation_tree(file):
+    with open(file, 'r') as replies_file:
+        return yaml.safe_load(replies_file)
+
+
+if __name__ == '__main__':
+    app.run()

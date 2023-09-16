@@ -1,16 +1,12 @@
+import json
 import logging
-import os
 
 import requests
+from requests import Response
 from requests.adapters import HTTPAdapter, Retry
-from dotenv import load_dotenv
 
-load_dotenv()
 LIVETEX_URL = 'https://bot-api.livetex.ru'
-headers = {
-    'Content-Type': 'application/json',
-    'Bot-Api-Token': os.environ.get('LIVETEX_TOKEN')
-}
+CHANNEL_TOKEN_MAPPING_FILE = 'channel_tokens.json'
 
 session = requests.Session()
 retries = Retry(
@@ -36,39 +32,68 @@ logger.addHandler(file_handler)
 
 
 def send_reply(channel_id, visitor_id, payload):
+    response = make_request(
+        channel_id,
+        f'{LIVETEX_URL}/v1/channel/{channel_id}/visitor/{visitor_id}/text',
+        payload=payload,
+    )
+    return handle_response(channel_id, visitor_id, 'send_reply', response, payload=payload.get('path'))
+
+
+def transfer_to_operator(channel_id, visitor_id):
+    response = make_request(channel_id, f'{LIVETEX_URL}/v1/channel/{channel_id}/visitor/{visitor_id}/route')
+    return handle_response(channel_id, visitor_id, 'transfer_to_operator', response)
+
+
+def make_request(channel_id, url, method='POST', payload=None):
     try:
-        session.post(
-            f'{LIVETEX_URL}/v1/channel/{channel_id}/visitor/{visitor_id}/text',
+        response = session.request(
+            method,
+            url,
             json=payload,
-            headers=headers
+            headers=build_headers(channel_id)
         )
-        response = build_response(channel_id, visitor_id, 'success', payload=payload.get('path'))
-        logger.debug(response)
-    except requests.exceptions.RequestException as exception:
-        response = build_response(channel_id, visitor_id, 'error', payload=payload.get('path'), result=exception)
-        logger.error(response)
-    return response
+        return response
+    except requests.exceptions.RequestException as e:
+        return None
 
 
-def connect_to_operator(channel_id, visitor_id):
-    try:
-        session.post(
-            f'{LIVETEX_URL}/v1/channel/{channel_id}/visitor/{visitor_id}/route',
-            json={},
-            headers=headers
-        )
-        response = build_response(channel_id, visitor_id, 'success')
-        logger.debug(response)
-    except requests.exceptions.RequestException as exception:
-        response = build_response(channel_id, visitor_id, 'error', result=exception)
-        logger.error(response)
-    return response
-
-
-def build_response(channel_id, visitor_id, status, **kwargs):
-    return {
+def handle_response(channel_id, visitor_id, request_type, response, **kwargs):
+    response_result = get_response_result(response)
+    result = {
         'channel_id': channel_id,
         'visitor_id': visitor_id,
-        'status': status,
+        'request_type': request_type,
+        'response_result': response_result,
+        'response_code': response.status_code,
         **kwargs
+    }
+    logger.log(
+        msg=result,
+        level=(logging.ERROR if response_result == 'error' else logging.DEBUG)
+    )
+    return result
+
+
+def get_response_result(response: Response):
+    if (
+            response is None or
+            str(response.status_code).startswith('4') or
+            response.status_code == 200 and response.content and response.json().get('error')
+    ):
+        return 'error'
+    if response.status_code == 200:
+        return 'success'
+    return 'error'
+
+
+def get_channel_token_mapping(file):
+    with open(file, 'r') as config_file:
+        return json.load(config_file)
+
+
+def build_headers(channel_id):
+    return {
+        'Content-Type': 'application/json',
+        'Bot-Api-Token': get_channel_token_mapping(CHANNEL_TOKEN_MAPPING_FILE).get(str(channel_id))
     }
