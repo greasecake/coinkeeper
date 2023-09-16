@@ -1,0 +1,23 @@
+type: object
+properties:
+  children:
+    additionalProperties:
+      $ref: "#/definitions/Node"
+  text:
+    type: string
+  path:
+    type: array
+    items:
+      type: string
+
+definitions:
+  Node:
+    properties:
+      button:
+        type: string
+      text:
+        type: string
+      children:
+        type: object
+        additionalProperties:
+          $ref: "#/definitions/Node"
