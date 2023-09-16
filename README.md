@@ -1,22 +1,26 @@
-# Сервис для интеграции с Livetex
+# Service for Integration with Livetex
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/greasecake/coinkeeper/blob/master/README.md)
+[![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/greasecake/coinkeeper/blob/master/README-ru.md)
 
-## Обзор
+## Overview
 
-Это приложение на Python, созданное с использованием Flask для обработки событий webhook. Оно интегрируется с Livetex Bot API для реагирования на действия посетителей и маршрутизации сообщений операторам.
+This is a Python application created using Flask to handle webhook events. It integrates with the Livetex Bot API to respond to visitor actions and route messages to operators.
 
-## Начало работы
+## Getting Started
 
-Следуйте этим шагам, чтобы настроить и запустить проект локально.
+Follow these steps to set up and run the project locally.
 
-### Установка
+### Installation
 
- `pip install -r requirements.txt`
+```bash
+pip install -r requirements.txt
+```
 
-### Настройка
+### Configuration
 
-- В папке с приложением необходимо создать файл `channel_tokens.json` с соответствием [id точки контакта](https://my.livetex.ru/settings/touch_points) и [токенов](https://my.livetex.ru/channels/bot).
+- In the application folder, create a `channel_tokens.json` file with the mapping of [contact point IDs](https://my.livetex.ru/settings/touch_points) to [tokens](https://my.livetex.ru/channels/bot).
 
-Пример:
+Example:
 ```json
 {
   "123456": "112233:00000000-aaaa-0000-aaaa-00000000aaaa",  
@@ -24,84 +28,87 @@
 }
 ```
 
-## Использование
+## Usage
 
-`python app.py`
+```bash
+python app.py
+```
 
-Приложение прослушивает входящие POST-запросы по адресу `/bot-api/webhook`. Оно обрабатывает события webhook, реагирует на действия посетителей и маршрутизирует сообщения операторам.
+The application listens for incoming POST requests at the `/bot-api/webhook` endpoint. It processes webhook events, responds to visitor actions, and routes messages to operators.
 
-### Вебхук-конечные точки
+### Webhook Endpoints
 
-- `POST /bot-api/webhook`: Обработка входящих событий webhook.
-- `GET /bot-api/webhook`: Получение первоначальных настроек.
+- `POST /bot-api/webhook`: Processing incoming webhook events.
+- `GET /bot-api/webhook`: Getting initial settings.
 
-Для более подробной информации о взаимодействии с API и настройке webhook payload обратитесь к [документации Livetex]([url](https://support.livetex.ru/hc/ru/articles/4411890908305-Bot-API)) и предоставленному примеру скрипта (`conversation_tree.yml`).
+For more detailed information on interacting with the API, refer to the [Livetex documentation](https://support.livetex.ru/hc/ru/articles/4411890908305-Bot-API) and the provided example script (`conversation_tree.yml`).
 
-## Логирование и Обработка Ошибок
+## Logging and Error Handling
 
-В проекте внедрено логирование и обработка ошибок для обеспечения стабильной и надежной работы приложения. Логи пишутся в файл `app.log`.
+The project includes logging and error handling. Logs are written to `stdout`, and errors are additionally logged to the `error.log` file.
 
-### Логирование
+### Logging
 
-- Логи событий: Логируются входящие POST-запросы, включая `channel_id` и `visitor_id`, для отслеживания событий.
+- Event logs: Incoming POST requests, including `channel_id` and `visitor_id`, are logged for event tracking.
 
-### Обработка Ошибок
+### Error Handling
 
-- Все обработчики запросов (`get_reply` и `get_settings`) включают обработку ошибок и логирование ошибок в случае их возникновения.
+- All request handlers (`get_reply` and `get_settings`) include error handling and log errors in case they occur.
 
-- В случае ошибки, клиенту возвращается сообщение об ошибке с соответствующим статусом и кодом состояния.
+- In case of an error, a corresponding error message with the appropriate status and status code is returned to the client.
 
 ---
 
-# Структура файла `conversation_tree.yml`
+# Structure of the `conversation_tree.yml` File
 
-Файл `conversation_tree.yml` используется для определения структуры и содержания ответов на различные события webhook в проекте. Этот файл YAML организует ответы в иерархическую структуру, позволяя гибко настраивать ответы чатбота.
+The `conversation_tree.yml` file is used to define the structure and content of responses to various webhook events in the project. This YAML file organizes responses into a hierarchical structure, allowing for flexible chatbot response customization.
 
-## Структура YAML
+## YAML Structure
 
-Файл `conversation_tree.yml` следует иерархической структуре с вложенными узлами, которые представляют разные этапы беседы или ответы. Каждый узел может содержать текст и варианты кнопок.
+The `conversation_tree.yml` file follows a hierarchical structure with nested nodes representing different stages of a conversation or responses. Each node can contain text and button options.
 
-### Пример структуры `conversation_tree.yml`:
+### Example `conversation_tree.yml` Structure:
 
 ```yaml
 root:
-  text: "Добро пожаловать в нашего чатбота! Как мы можем вам помочь сегодня?"
+  text: "Welcome to our chatbot! How can we assist you today?"
   children:
     greeting:
-      text: "Привет! Как я могу вам помочь?"
+      text: "Hello! How can I help you?"
       children:
         menu:
-          text: "Вот некоторые варианты:"
+          text: "Here are some options:"
           children:
             option1:
-              text: "Вариант 1: Узнать больше"
+              text: "Option 1: Learn more"
             option2:
-              text: "Вариант 2: Уточнить запрос"
+              text: "Option 2: Clarify your request"
             operator:
-              text: "Вариант 3: Связаться с оператором"
+              text: "Option 3: Contact an operator"
 ```
 
-В этом примере:
+In this example:
 
-- `root` - это верхний уровень узла и служит точкой начала разговора.
-- У каждого узла может быть поле `text`, содержащее текст ответа чатбота.
-- Узлы могут иметь детей (подузлы), что позволяет создавать иерархию ответов.
-- 'operator' - это зарезервированное имя узла. Если пользователь попадает туда, его обращение переводится свободному оператору группы. Таких узлов может быть несколько в разных точках дерева.
+- `root` is the top-level node and serves as the starting point of the conversation.
+- Each node can have a `text` field containing the chatbot's response text.
+- Nodes can have children (subnodes) to create a hierarchy of responses.
+- `operator` is a reserved node name. If a user lands there, their request is transferred to an available operator in the group. Multiple such nodes can exist at different points in the tree.
 
-### Параметры ответов
+### Response Parameters
 
-Для каждого узла можно определить следующие параметры:
+For each node, you can define the following parameters:
 
-- `text`: Текстовое сообщение, которое отправит чатбот.
-- `children`: Вложенные узлы, представляющие возможные следующие ответы.
-- `button`: Необязательное поле, которое определяет текст на кнопке ответа.
+- `text`: The textual message the chatbot will send.
+- `children`: Nested nodes representing possible next responses.
+- `button`: An optional field that defines the text on the response button.
 
-### Использование
+### Usage
 
-Файл `conversation_tree.yml` используется в коде для определения текстовых ответов и кнопок на основе передаваемого в webhook события. Узлы в YAML-структуре идентифицируются с помощью ключей и могут быть использованы в данных payload.
+The `conversation_tree.yml` file is used in the code to determine text responses and buttons based on the received webhook event. Nodes in the YAML structure are identified using keys and can be used in payload data.
 
-Пример использования ключа в данных payload: `"payload": "options.option1"` означает, что чатбот извлечет текстовый ответ из узла `option1` в структуре `options`.
+Example of using a key in payload data: `"payload": "options.option1"` means that the chatbot will retrieve the text response from the `option1` node in the `options` structure.
 
-### Настройка
+### Configuration
 
-Настройте файл `conversation_tree.yml` в соответствии с требованиями вашего чатбота и желаемой структурой диалога. Добавляйте, изменяйте или удаляйте узлы в файле для создания персонализированного опыта взаимодействия с чатботом.
+Configure the `conversation_tree.yml` file according to your chatbot's requirements and the desired dialog structure.
+```
