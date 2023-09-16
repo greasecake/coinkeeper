@@ -71,20 +71,24 @@ The `conversation_tree.yml` file follows a hierarchical structure with nested no
 
 ```yaml
 root:
-  text: "Welcome to our chatbot! How can we assist you today?"
+  text: "👋 Hello! Choose a topic or chat with an operator."
   children:
-    greeting:
-      text: "Hello! How can I help you?"
+    subscription_account:
+      button: "🪪Subscription and Account"
+      text: "Select a question or go back."
       children:
-        menu:
-          text: "Here are some options:"
-          children:
-            option1:
-              text: "Option 1: Learn more"
-            option2:
-              text: "Option 2: Clarify your request"
-            operator:
-              text: "Option 3: Contact an operator"
+        account_login:
+          button: "Log into your account"
+          text: "Here's how to log in and sync your data..."
+        error:
+          button: "Error 'Contact Support'"
+          text: "Here's how to resolve data-related issues..."
+        clear_account:
+          button: "Clear Account"
+          text: "Account clearing procedure goes like this..."
+    operator:
+      button: "👩‍💻Chat with Operator"
+      text: "Describe your situation; an operator will respond within 24 hours."
 ```
 
 In this example:
@@ -106,7 +110,7 @@ For each node, you can define the following parameters:
 
 The `conversation_tree.yml` file is used in the code to determine text responses and buttons based on the received webhook event. Nodes in the YAML structure are identified using keys and can be used in payload data.
 
-Example of using a key in payload data: `"payload": "options.option1"` means that the chatbot will retrieve the text response from the `option1` node in the `options` structure.
+Example of using a key in payload data: `"payload": "root.subscription_account.account_login"` means that the chatbot will retrieve the text response from the `account_login` node in the structure.
 
 ### Configuration
 
