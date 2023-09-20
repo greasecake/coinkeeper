@@ -35,17 +35,17 @@ def send_reply(channel_id, visitor_id, payload):
     response = make_request(
         channel_id,
         f'{LIVETEX_URL}/v1/channel/{channel_id}/visitor/{visitor_id}/text',
-        payload=payload,
+        payload,
     )
     return handle_response(channel_id, visitor_id, 'send_reply', response, payload=payload.get('path'))
 
 
 def transfer_to_operator(channel_id, visitor_id):
-    response = make_request(channel_id, f'{LIVETEX_URL}/v1/channel/{channel_id}/visitor/{visitor_id}/route')
+    response = make_request(channel_id, f'{LIVETEX_URL}/v1/channel/{channel_id}/visitor/{visitor_id}/route', {})
     return handle_response(channel_id, visitor_id, 'transfer_to_operator', response)
 
 
-def make_request(channel_id, url, method='POST', payload=None):
+def make_request(channel_id, url, payload, method='POST'):
     try:
         response = session.request(
             method,
