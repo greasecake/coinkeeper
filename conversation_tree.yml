@@ -1,45 +1,46 @@
 root:
   text:
-    "👋 Hello! Choose a message topic: if none of these fit, click 'Talk to an Operator.'"
+    "👋 Hello! What can I assist you with today? If none of these options fit, click 'Talk to an Operator.'"
   children:
-    subscription_account:
+    account_issues:
       button:
-        "🪪 Subscription and Account"
+        "🔑 Account Issues"
       text:
-        "Great!💫✨ Now, select your question. If you don't find a suitable option, click 'Back'."
+        "Alright! Now, select your question. If you don't find a suitable option, click 'Back'."
       children:
-        account_login:
+        login_issues:
           button:
-            "Log into your account"
+            "Can't log in"
           text:
-            "When you purchase a subscription, it's tied to your account (login - your email) and isn't limited to a single device: it unlocks all the features listed in it. You can use this account on different devices: Android, iOS, and the web version on your PC. All the data you enter into the account from any device will be displayed on others, meaning they synchronize with each other.\n    After payment, you should receive an email to your inbox about your first login to the app. If you don't see the email, it might have ended up in the Spam folder. Try logging into your account in the app using the email you used to subscribe to the app (by clicking 'I have a profile'). If you can't log in, request a password reset through 'Forgot password'.\nIf you still can't, please contact our operator."
-        transfer_data:
+            "If you're having trouble logging into your account, make sure you're using the correct email and password. If you've forgotten your password, you can reset it by clicking 'Forgot Password'. If you're still having trouble, please contact our operator."
+        subscription_issues:
           button:
-            "Transfer data from the free version"
+            "Subscription issues"
           text:
-            "If you've been using the free version of the app and want to continue using that data by transferring it to your personal account (on the server), you need to purchase a subscription to the app and then click 'Link purchased subscription' in your Profile (using your personal login and password). The data will be transferred to your account."
-        transfer_subscription:
+            "If you're having issues with your subscription, make sure your payment method is up-to-date and that your subscription hasn't expired. If you're still having trouble, please contact our operator."
+        playlist_issues:
           button:
-            "Transfer subscription from the old version"
+            "Playlist issues"
           text:
-            "The old and new versions of the app are synchronized with each other. To access your data in the new version of the app, log in to CoinKeeper3 with your old login and password (with a paid subscription) from the CoinKeeper app."
-        family_account:
+            "If you're having trouble with your playlists, make sure you're logged into the correct account. If you're still having trouble, please contact our operator."
+    music_issues:
+      button:
+        "🎵 Music Issues"
+      text:
+        "Alright! Now, select your question. If you don't find a suitable option, click 'Back'."
+      children:
+        song_not_playing:
           button:
-            "Family account"
+            "Song not playing"
           text:
-            "To use the account as a family account, each family member needs to log in to the app on their own device with the same login and password (from the account).\nWhen you purchase a subscription, it's tied to your account (login - your email) and isn't limited to a single device: it unlocks all the features listed in it. You can use this account on different devices: Android, iOS, and the web version on your PC at https://coinkeeper.me/introduce-yourself. All the data you enter into the account from any device will be displayed on others, meaning they synchronize with each other. When managing a joint budget on a single account, everyone who uses it will see all the income, accounts, and categories."
-        error:
+            "If a song isn't playing, try restarting the app or your device. If the issue persists, please contact our operator."
+        song_not_found:
           button:
-            "Error 'Contact Support'"
+            "Can't find a song"
           text:
-            "This message appears if you entered any data into the app. If you don't need this data, reinstall the app and log in with your existing profile (through 'I have an account') at https://ck3help.me/page6298290.html\nIf you need the data and want to continue using it, please contact our operator."
-        clear_account:
-          button:
-            "Clear account"
-          text:
-            "You can clear the account manually by deleting all transaction data. Alternatively, we can clear the account from our side, removing everything - history, categories, labels, and accounts, imported bank transactions (if connected), except for CoinKeeper cards from AkBars bank (those cannot be reset). The app subscription will remain active.\nTo reset the account, please contact our operator."
+            "If you can't find a song, make sure you're searching with the correct title or artist name. If you're still having trouble, please contact our operator."
     operator:
       button:
         "👩‍💻 Talk to an Operator"
       text:
-        "Please describe your situation in as much detail as possible. If possible, illustrate it with a screenshot. Our operators will respond to you within 24 hours."
+        "Please describe your situation in as much detail as possible. If possible, illustrate it with a screenshot. Our operators will assist you as soon as possible."
